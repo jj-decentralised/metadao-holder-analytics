@@ -12,7 +12,19 @@ export async function GET(req: NextRequest) {
     await ensureSchema();
     const db = getDb();
     if (!db) {
-      return NextResponse.json({ series: [], note: "No DATABASE_URL configured" });
+      // Return synthetic demo data so the chart isn't empty
+      const now = Date.now();
+      const DAY = 86_400_000;
+      const demoSeries = Array.from({ length: Math.min(days, 90) }, (_, i) => {
+        const base = 2400 + Math.floor(Math.random() * 200) + i * 3;
+        return {
+          t: now - (Math.min(days, 90) - i) * DAY,
+          holderCount: base,
+          top10: +(68 - i * 0.05 + Math.random() * 0.5).toFixed(2),
+          top50: +(89 - i * 0.03 + Math.random() * 0.3).toFixed(2),
+        };
+      });
+      return NextResponse.json({ series: demoSeries, note: "Demo data — configure DATABASE_URL for real snapshots" });
     }
 
     const res = await db.query(

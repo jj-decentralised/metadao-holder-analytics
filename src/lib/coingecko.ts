@@ -38,7 +38,7 @@ export async function fetchMarketChart(
 ): Promise<{ prices: MarketPoint[] } & Record<string, unknown>> {
   const url = `${COINGECKO_BASE}/coins/${encodeURIComponent(
     coinId,
-  )}/market_chart?vs_currency=${vsCurrency}&days=${days}&interval=auto`;
+  )}/market_chart?vs_currency=${vsCurrency}&days=${days}`;
   const json = await getJson<any>(url);
   const points: MarketPoint[] = (json?.prices || []).map((p: [number, number]) => ({
     t: p[0],
