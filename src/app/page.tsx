@@ -11,6 +11,10 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid,
+  Legend,
 } from "recharts";
 
 interface HolderData {
@@ -34,12 +38,20 @@ export default function Home() {
   const [data, setData] = useState<HolderStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Controls for benchmarks
+  const [coinId, setCoinId] = useState<string>("solana");
+  const [days, setDays] = useState<number>(180);
+  const [price, setPrice] = useState<{ t: number; price: number }[] | null>(null);
+  const [vol30, setVol30] = useState<{ t: number; v: number }[] | null>(null);
+  const [vol90, setVol90] = useState<{ t: number; v: number }[] | null>(null);
+  const [sharpe30, setSharpe30] = useState<{ t: number; v: number }[] | null>(null);
+  const [sharpe90, setSharpe90] = useState<{ t: number; v: number }[] | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchSnapshot() {
       try {
         const res = await fetch("/api/holders");
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Failed to fetch holders");
         const json = await res.json();
         setData(json);
       } catch (err) {
@@ -49,8 +61,26 @@ export default function Home() {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchSnapshot();
   }, []);
+
+  // Fetch price + metrics whenever controls change
+  useEffect(() => {
+    async function fetchBench() {
+      try {
+        const p = await fetch(`/api/price/${encodeURIComponent(coinId)}?days=${days}`).then(r => r.json());
+        setPrice(p?.prices || null);
+        const m = await fetch(`/api/metrics/${encodeURIComponent(coinId)}?days=${days}&windows=30,90`).then(r => r.json());
+        setVol30(m?.vol?.[30] || null);
+        setVol90(m?.vol?.[90] || null);
+        setSharpe30(m?.sharpe?.[30] || null);
+        setSharpe90(m?.sharpe?.[90] || null);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchBench();
+  }, [coinId, days]);
 
   if (loading) {
     return (
@@ -113,6 +143,32 @@ export default function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Controls */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <label className="text-xs text-neutral-500 uppercase tracking-wider">CoinGecko ID</label>
+            <input
+              value={coinId}
+              onChange={(e) => setCoinId(e.target.value)}
+              className="border border-neutral-300 rounded px-2 py-1 text-sm"
+              placeholder="e.g. solana"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            {[30, 90, 180, 365].map((d) => (
+              <button
+                key={d}
+                onClick={() => setDays(d)}
+                className={`px-3 py-1 text-sm border rounded ${
+                  days === d ? "bg-neutral-900 text-white border-neutral-900" : "border-neutral-300"
+                }`}
+              >
+                {d}D
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Key Figures */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-neutral-200 divide-x divide-neutral-200 mb-10">
           <StatCard title="Total Holders" value={data.totalHolders.toLocaleString()} />
@@ -206,6 +262,54 @@ export default function Home() {
             </ResponsiveContainer>
           </section>
         </div>
+
+        {/* Price & Metrics */}
+        <section className="mb-12">
+          <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold mb-1">
+            Price & Benchmarks
+          </h2>
+          <p className="text-sm text-neutral-500 font-[family-name:var(--font-sans)] mb-4">
+            Price line with rolling volatility and Sharpe (30D, 90D)
+          </p>
+          <div className="grid grid-cols-1 gap-6">
+            <div className="border border-neutral-200 p-3">
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={(price || []).map(p => ({ t: p.t, price: p.price }))}>
+                  <CartesianGrid stroke="#eee" />
+                  <XAxis dataKey="t" tickFormatter={(v) => new Date(v).toLocaleDateString()} tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip labelFormatter={(v) => new Date(Number(v)).toLocaleString()} formatter={(v) => [`$${Number(v).toLocaleString()}`, "Price"]} />
+                  <Legend />
+                  <Line type="monotone" dataKey="price" stroke="#111827" dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="border border-neutral-200 p-3">
+                <h3 className="text-sm font-semibold mb-2">Rolling Volatility</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={(vol30 || []).map(p => ({ t: p.t, v30: p.v }))}>
+                    <XAxis dataKey="t" tickFormatter={(v) => new Date(v).toLocaleDateString()} tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip labelFormatter={(v) => new Date(Number(v)).toLocaleDateString()} />
+                    <Line type="monotone" dataKey="v30" name="Vol 30D" stroke="#111827" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="border border-neutral-200 p-3">
+                <h3 className="text-sm font-semibold mb-2">Sharpe</h3>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={(sharpe30 || []).map(p => ({ t: p.t, s30: p.v }))}>
+                    <XAxis dataKey="t" tickFormatter={(v) => new Date(v).toLocaleDateString()} tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
+                    <Tooltip labelFormatter={(v) => new Date(Number(v)).toLocaleDateString()} />
+                    <Line type="monotone" dataKey="s30" name="Sharpe 30D" stroke="#4b5563" dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Divider */}
         <hr className="border-neutral-200 mb-8" />
