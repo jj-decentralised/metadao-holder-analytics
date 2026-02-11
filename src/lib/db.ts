@@ -30,4 +30,18 @@ export async function ensureSchema() {
       primary key(token_id, as_of)
     );
   `);
+  await db.query(`
+    create table if not exists holder_balances (
+      token_id text not null,
+      as_of timestamptz not null,
+      wallet_address text not null,
+      balance double precision not null,
+      balance_usd double precision,
+      primary key(token_id, as_of, wallet_address)
+    );
+  `);
+  await db.query(`
+    create index if not exists idx_holder_balances_wallet
+      on holder_balances(wallet_address, token_id, as_of);
+  `);
 }
