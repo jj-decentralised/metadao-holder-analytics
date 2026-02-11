@@ -28,18 +28,7 @@ interface HolderStats {
   holders: HolderData[];
 }
 
-const COLORS = [
-  "#8b5cf6",
-  "#a78bfa",
-  "#c4b5fd",
-  "#ddd6fe",
-  "#ede9fe",
-  "#6366f1",
-  "#818cf8",
-  "#a5b4fc",
-  "#c7d2fe",
-  "#e0e7ff",
-];
+const COLORS = ["#262626", "#525252", "#a3a3a3", "#d4d4d4", "#e5e5e5"];
 
 export default function Home() {
   const [data, setData] = useState<HolderStats | null>(null);
@@ -65,93 +54,102 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <div className="animate-pulse text-xl">Loading MetaDAO holder data...</div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-pulse text-lg font-[family-name:var(--font-sans)] text-neutral-400">
+          Loading…
+        </div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <div className="text-red-400">{error || "No data available"}</div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-red-600 font-[family-name:var(--font-sans)]">
+          {error || "No data available"}
+        </div>
       </div>
     );
   }
 
   const pieData = [
-    { name: "Top 10 Holders", value: data.top10Percentage },
-    { name: "Top 11-50", value: data.top50Percentage - data.top10Percentage },
+    { name: "Top 10", value: data.top10Percentage },
+    { name: "Top 11–50", value: data.top50Percentage - data.top10Percentage },
     { name: "Others", value: 100 - data.top50Percentage },
   ];
 
   const barData = data.holders.slice(0, 10).map((h, i) => ({
-    name: `#${i + 1}`,
+    name: `${i + 1}`,
     balance: parseFloat(h.balance),
     percentage: h.percentage,
   }));
 
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+    <div className="min-h-screen bg-white text-neutral-900">
+      {/* Masthead */}
+      <header className="border-b-2 border-neutral-900">
+        <div className="max-w-6xl mx-auto px-6 pt-6 pb-4">
+          <div className="text-center">
+            <h1 className="font-[family-name:var(--font-serif)] text-4xl font-bold tracking-tight">
               MetaDAO Holder Analytics
             </h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Real-time holder distribution powered by Codex.io
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-gray-400">Last updated</div>
-            <div className="text-violet-400">{new Date().toLocaleTimeString()}</div>
+            <div className="mt-2 flex items-center justify-center gap-3 text-xs font-[family-name:var(--font-sans)] text-neutral-500 uppercase tracking-widest">
+              <span>{dateStr}</span>
+              <span className="text-neutral-300">|</span>
+              <span>Updated {now.toLocaleTimeString()}</span>
+              <span className="text-neutral-300">|</span>
+              <span>Data by Codex.io</span>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            title="Total Holders"
-            value={data.totalHolders.toLocaleString()}
-            subtitle="Unique wallets"
-          />
+      <main className="max-w-6xl mx-auto px-6 py-10">
+        {/* Key Figures */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-neutral-200 divide-x divide-neutral-200 mb-10">
+          <StatCard title="Total Holders" value={data.totalHolders.toLocaleString()} />
           <StatCard
             title="Top 10 Concentration"
             value={`${data.top10Percentage.toFixed(1)}%`}
-            subtitle="Of total supply"
-            highlight={data.top10Percentage > 50}
+            alert={data.top10Percentage > 50}
           />
           <StatCard
             title="Top 50 Concentration"
             value={`${data.top50Percentage.toFixed(1)}%`}
-            subtitle="Of total supply"
           />
-          <StatCard
-            title="Median Balance"
-            value={formatNumber(data.medianBalance)}
-            subtitle="META tokens"
-          />
+          <StatCard title="Median Balance" value={formatNumber(data.medianBalance)} />
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Distribution Pie Chart */}
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h2 className="text-lg font-semibold mb-4">Holder Distribution</h2>
-            <ResponsiveContainer width="100%" height={300}>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+          {/* Distribution */}
+          <section>
+            <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold mb-1">
+              Holder Distribution
+            </h2>
+            <p className="text-sm text-neutral-500 font-[family-name:var(--font-sans)] mb-4">
+              Share of total supply by holder cohort
+            </p>
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={2}
+                  innerRadius={55}
+                  outerRadius={95}
+                  paddingAngle={1}
                   dataKey="value"
+                  stroke="#fff"
+                  strokeWidth={2}
                   label={({ name, value }) => `${name}: ${value.toFixed(1)}%`}
                 >
                   {pieData.map((_, index) => (
@@ -160,95 +158,120 @@ export default function Home() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "1px solid #374151",
-                    borderRadius: "8px",
+                    backgroundColor: "#fff",
+                    border: "1px solid #e5e5e5",
+                    borderRadius: "2px",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "13px",
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          </section>
 
-          {/* Top Holders Bar Chart */}
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h2 className="text-lg font-semibold mb-4">Top 10 Holders</h2>
-            <ResponsiveContainer width="100%" height={300}>
+          {/* Top Holders Bar */}
+          <section>
+            <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold mb-1">
+              Largest Holders
+            </h2>
+            <p className="text-sm text-neutral-500 font-[family-name:var(--font-sans)] mb-4">
+              Token balance by rank
+            </p>
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart data={barData} layout="vertical">
                 <XAxis type="number" hide />
-                <YAxis type="category" dataKey="name" width={40} />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={24}
+                  tick={{ fontSize: 12, fontFamily: "var(--font-sans)" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1f2937",
-                    border: "1px solid #374151",
-                    borderRadius: "8px",
+                    backgroundColor: "#fff",
+                    border: "1px solid #e5e5e5",
+                    borderRadius: "2px",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "13px",
                   }}
                   formatter={(value) => [
                     `${formatNumber(Number(value))} META`,
                     "Balance",
                   ]}
                 />
-                <Bar dataKey="balance" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="balance" fill="#262626" radius={[0, 2, 2, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </section>
         </div>
 
+        {/* Divider */}
+        <hr className="border-neutral-200 mb-8" />
+
         {/* Holders Table */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-800">
-            <h2 className="text-lg font-semibold">Top Holders</h2>
-          </div>
+        <section>
+          <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold mb-1">
+            Top Holders
+          </h2>
+          <p className="text-sm text-neutral-500 font-[family-name:var(--font-sans)] mb-4">
+            Ranked by token balance, top 25 wallets shown
+          </p>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-800/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+            <table className="w-full font-[family-name:var(--font-sans)] text-sm">
+              <thead>
+                <tr className="border-b-2 border-neutral-900">
+                  <th className="py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Rank
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="py-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Address
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="py-2 pl-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     Balance
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="py-2 pl-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     USD Value
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="py-2 pl-4 text-right text-xs font-semibold uppercase tracking-wider text-neutral-500">
                     % of Supply
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody>
                 {data.holders.slice(0, 25).map((holder, i) => (
-                  <tr key={holder.address} className="hover:bg-gray-800/30 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                        i < 3 ? "bg-violet-500/20 text-violet-400" : "bg-gray-800 text-gray-400"
+                  <tr
+                    key={holder.address}
+                    className="border-b border-neutral-100 hover:bg-neutral-50 transition-colors"
+                  >
+                    <td className="py-3 pr-4 tabular-nums">
+                      <span className={`${
+                        i < 3 ? "font-bold" : "text-neutral-400"
                       }`}>
                         {i + 1}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <code className="text-sm text-gray-300 bg-gray-800 px-2 py-1 rounded">
+                    <td className="py-3 pr-4">
+                      <code className="font-[family-name:var(--font-mono)] text-xs text-neutral-600">
                         {truncateAddress(holder.address)}
                       </code>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-gray-300">
+                    <td className="py-3 pl-4 text-right tabular-nums">
                       {formatNumber(parseFloat(holder.balance))}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-green-400">
+                    <td className="py-3 pl-4 text-right tabular-nums">
                       ${holder.balanceUsd.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <td className="py-3 pl-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <div className="w-16 bg-gray-800 rounded-full h-2">
+                        <div className="w-16 bg-neutral-100 h-1.5">
                           <div
-                            className="bg-violet-500 h-2 rounded-full"
+                            className="bg-neutral-900 h-1.5"
                             style={{ width: `${Math.min(holder.percentage * 2, 100)}%` }}
                           />
                         </div>
-                        <span className="text-gray-300 w-16 text-right">
+                        <span className="tabular-nums text-neutral-600 w-14 text-right text-xs">
                           {holder.percentage.toFixed(2)}%
                         </span>
                       </div>
@@ -258,11 +281,13 @@ export default function Home() {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-gray-500 text-sm">
-          <p>Data provided by Codex.io API • Built with Next.js</p>
+        <footer className="mt-16 pt-6 border-t border-neutral-200 text-center">
+          <p className="text-xs text-neutral-400 font-[family-name:var(--font-sans)] uppercase tracking-widest">
+            Data provided by Codex.io · MetaDAO Holder Analytics
+          </p>
         </footer>
       </main>
     </div>
@@ -272,30 +297,31 @@ export default function Home() {
 function StatCard({
   title,
   value,
-  subtitle,
-  highlight = false,
+  alert = false,
 }: {
   title: string;
   value: string;
-  subtitle: string;
-  highlight?: boolean;
+  alert?: boolean;
 }) {
   return (
-    <div className={`bg-gray-900 rounded-xl p-6 border ${
-      highlight ? "border-yellow-500/50" : "border-gray-800"
-    }`}>
-      <div className="text-sm text-gray-400 mb-1">{title}</div>
-      <div className={`text-2xl font-bold ${highlight ? "text-yellow-400" : "text-white"}`}>
+    <div className="px-5 py-4">
+      <div className="text-xs font-[family-name:var(--font-sans)] text-neutral-500 uppercase tracking-wider mb-1">
+        {title}
+      </div>
+      <div
+        className={`text-2xl font-[family-name:var(--font-serif)] font-bold tabular-nums ${
+          alert ? "text-red-700" : "text-neutral-900"
+        }`}
+      >
         {value}
       </div>
-      <div className="text-xs text-gray-500 mt-1">{subtitle}</div>
     </div>
   );
 }
 
 function truncateAddress(address: string): string {
   if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
 function formatNumber(num: number): string {
