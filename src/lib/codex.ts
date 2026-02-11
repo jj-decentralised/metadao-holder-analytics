@@ -31,21 +31,27 @@ export interface HolderStats {
   holders: HolderData[];
 }
 
+// Solana network ID for Codex
+const SOLANA_NETWORK_ID = 1399811149;
+
 export async function getMetaDAOHolders(): Promise<HolderStats> {
   const codex = getCodexClient();
   
   try {
     // Fetch token holders from Codex API
+    // tokenId format is "tokenAddress:networkId"
+    const tokenId = `${METADAO_TOKEN}:${SOLANA_NETWORK_ID}`;
+    
     const response = await codex.queries.holders({
       input: {
-        tokenAddress: METADAO_TOKEN,
-        networkId: 1399811149, // Solana network ID
+        tokenId,
         limit: 100,
       },
     });
 
     const holders = response?.holders?.items || [];
     const totalHolders = response?.holders?.count || holders.length;
+    const top10Pct = response?.holders?.top10HoldersPercent || 0;
 
     // Calculate holder statistics
     const holdersWithData: HolderData[] = holders.map((holder: any, index: number) => {

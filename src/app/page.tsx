@@ -182,8 +182,8 @@ export default function Home() {
                     border: "1px solid #374151",
                     borderRadius: "8px",
                   }}
-                  formatter={(value: number) => [
-                    `${formatNumber(value)} META`,
+                  formatter={(value) => [
+                    `${formatNumber(Number(value))} META`,
                     "Balance",
                   ]}
                 />
