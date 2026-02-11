@@ -32,7 +32,7 @@ export interface HolderStats {
 }
 
 // Solana network ID for Codex
-const SOLANA_NETWORK_ID = 1399811149;
+export const SOLANA_NETWORK_ID = 1399811149;
 
 export async function getMetaDAOHolders(): Promise<HolderStats> {
   const codex = getCodexClient();

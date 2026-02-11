@@ -16,6 +16,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import { METADAO_TOKEN, SOLANA_NETWORK_ID } from "@/lib/codex";
 
 interface HolderData {
   address: string;
@@ -46,6 +47,7 @@ export default function Home() {
   const [vol90, setVol90] = useState<{ t: number; v: number }[] | null>(null);
   const [sharpe30, setSharpe30] = useState<{ t: number; v: number }[] | null>(null);
   const [sharpe90, setSharpe90] = useState<{ t: number; v: number }[] | null>(null);
+  const [holdersSeries, setHoldersSeries] = useState<{ t: number; holderCount: number; top10?: number; top50?: number }[] | null>(null);
 
   useEffect(() => {
     async function fetchSnapshot() {
@@ -75,6 +77,9 @@ export default function Home() {
         setVol90(m?.vol?.[90] || null);
         setSharpe30(m?.sharpe?.[30] || null);
         setSharpe90(m?.sharpe?.[90] || null);
+        const tokenId = `${METADAO_TOKEN}:${SOLANA_NETWORK_ID}`;
+        const hs = await fetch(`/api/holders/timeseries?tokenId=${encodeURIComponent(tokenId)}&days=${days}`).then(r => r.json());
+        setHoldersSeries(hs?.series || []);
       } catch (e) {
         console.error(e);
       }
@@ -262,6 +267,28 @@ export default function Home() {
             </ResponsiveContainer>
           </section>
         </div>
+
+        {/* Holders Over Time */}
+        <section className="mb-12">
+          <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold mb-1">Holders Over Time</h2>
+          <p className="text-sm text-neutral-500 font-[family-name:var(--font-sans)] mb-4">
+            Requires snapshots; configure DATABASE_URL and CODEX_API_KEY to enable hourly updates.
+          </p>
+          <div className="border border-neutral-200 p-3">
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={(holdersSeries || [])}>
+                <CartesianGrid stroke="#eee" />
+                <XAxis dataKey="t" tickFormatter={(v) => new Date(v).toLocaleDateString()} tick={{ fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
+                <Tooltip labelFormatter={(v) => new Date(Number(v)).toLocaleString()} />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey="holderCount" name="Holders" stroke="#111827" dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="top10" name="Top10 %" stroke="#6b7280" dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
 
         {/* Price & Metrics */}
         <section className="mb-12">
