@@ -17,6 +17,8 @@ import {
   Legend,
 } from "recharts";
 import { METADAO_TOKEN, SOLANA_NETWORK_ID } from "@/lib/codex";
+import { useSSE } from "@/hooks/useSSE";
+import type { HolderDelta } from "@/lib/sse";
 
 interface HolderData {
   address: string;
@@ -48,6 +50,24 @@ export default function Home() {
   const [sharpe30, setSharpe30] = useState<{ t: number; v: number }[] | null>(null);
   const [sharpe90, setSharpe90] = useState<{ t: number; v: number }[] | null>(null);
   const [holdersSeries, setHoldersSeries] = useState<{ t: number; holderCount: number; top10?: number; top50?: number }[] | null>(null);
+
+  // Real-time SSE streaming
+  const [liveEnabled, setLiveEnabled] = useState(false);
+  const { data: liveData, connected, lastUpdate } = useSSE({
+    enabled: liveEnabled,
+    onUpdate: (update: HolderDelta) => {
+      // Update stats with live data
+      if (data) {
+        setData({
+          ...data,
+          totalHolders: update.totalHolders,
+          top10Percentage: update.top10Percentage,
+          top50Percentage: update.top50Percentage,
+          medianBalance: update.medianBalance,
+        });
+      }
+    },
+  });
 
   useEffect(() => {
     async function fetchSnapshot() {
@@ -159,7 +179,24 @@ export default function Home() {
               placeholder="e.g. solana"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            {/* Live toggle */}
+            <button
+              onClick={() => setLiveEnabled(!liveEnabled)}
+              className={`flex items-center gap-2 px-3 py-1 text-sm border rounded transition-colors ${
+                liveEnabled
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-neutral-300 hover:border-neutral-400"
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  connected ? "bg-green-300 animate-pulse" : liveEnabled ? "bg-yellow-400" : "bg-neutral-300"
+                }`}
+              />
+              {liveEnabled ? (connected ? "Live" : "Connecting...") : "Go Live"}
+            </button>
+            {/* Days selector */}
             {[30, 90, 180, 365].map((d) => (
               <button
                 key={d}
@@ -176,18 +213,39 @@ export default function Home() {
 
         {/* Key Figures */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border border-neutral-200 divide-x divide-neutral-200 mb-10">
-          <StatCard title="Total Holders" value={data.totalHolders.toLocaleString()} />
+          <StatCard
+            title="Total Holders"
+            value={data.totalHolders.toLocaleString()}
+            delta={liveData?.delta?.totalHolders}
+            live={liveEnabled && connected}
+          />
           <StatCard
             title="Top 10 Concentration"
             value={`${data.top10Percentage.toFixed(1)}%`}
             alert={data.top10Percentage > 50}
+            delta={liveData?.delta?.top10Percentage}
+            deltaFormat="pct"
+            live={liveEnabled && connected}
           />
           <StatCard
             title="Top 50 Concentration"
             value={`${data.top50Percentage.toFixed(1)}%`}
+            delta={liveData?.delta?.top50Percentage}
+            deltaFormat="pct"
+            live={liveEnabled && connected}
           />
-          <StatCard title="Median Balance" value={formatNumber(data.medianBalance)} />
+          <StatCard
+            title="Median Balance"
+            value={formatNumber(data.medianBalance)}
+            live={liveEnabled && connected}
+          />
         </div>
+        {/* Last update indicator */}
+        {liveEnabled && lastUpdate && (
+          <div className="text-xs text-neutral-400 text-right -mt-8 mb-10">
+            Last update: {new Date(lastUpdate).toLocaleTimeString()}
+          </div>
+        )}
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
@@ -429,13 +487,28 @@ function StatCard({
   title,
   value,
   alert = false,
+  delta,
+  deltaFormat = "num",
+  live = false,
 }: {
   title: string;
   value: string;
   alert?: boolean;
+  delta?: number;
+  deltaFormat?: "num" | "pct";
+  live?: boolean;
 }) {
+  const hasDelta = delta !== undefined && delta !== 0;
+  const deltaStr =
+    deltaFormat === "pct"
+      ? `${delta! > 0 ? "+" : ""}${delta!.toFixed(2)}%`
+      : `${delta! > 0 ? "+" : ""}${delta}`;
+
   return (
-    <div className="px-5 py-4">
+    <div className="px-5 py-4 relative">
+      {live && (
+        <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+      )}
       <div className="text-xs font-[family-name:var(--font-sans)] text-neutral-500 uppercase tracking-wider mb-1">
         {title}
       </div>
@@ -446,6 +519,15 @@ function StatCard({
       >
         {value}
       </div>
+      {hasDelta && (
+        <div
+          className={`text-xs tabular-nums mt-1 ${
+            delta! > 0 ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {deltaStr}
+        </div>
+      )}
     </div>
   );
 }
