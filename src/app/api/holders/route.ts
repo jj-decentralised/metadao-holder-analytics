@@ -1,18 +1,20 @@
-import { NextResponse } from "next/server";
 import { getMetaDAOHolders } from "@/lib/codex";
+import { holdersCache } from "@/lib/cache";
+import { jsonWithCache, jsonError } from "@/lib/apiHelpers";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 60; // Cache for 60 seconds
+
+const CACHE_KEY = "metadao-holders";
 
 export async function GET() {
   try {
-    const data = await getMetaDAOHolders();
-    return NextResponse.json(data);
+    const data = await holdersCache.getOrSet(
+      CACHE_KEY,
+      () => getMetaDAOHolders(),
+    );
+    return jsonWithCache(data, "holders");
   } catch (error) {
     console.error("API Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch holder data" },
-      { status: 500 }
-    );
+    return jsonError("Failed to fetch holder data");
   }
 }

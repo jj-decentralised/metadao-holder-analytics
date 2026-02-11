@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { fetchMarketChart } from "@/lib/coingecko";
 import { toSeries, simpleReturns, rollingStd, sharpe } from "@/lib/metrics";
+import { jsonWithCache, jsonError } from "@/lib/apiHelpers";
 
 export const dynamic = "force-dynamic";
 
@@ -26,11 +27,8 @@ export async function GET(
       shrp[w] = sharpe(rets, w);
     }
 
-    return NextResponse.json({ vol, sharpe: shrp });
+    return jsonWithCache({ vol, sharpe: shrp }, "metrics");
   } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message ?? "Failed to compute metrics" },
-      { status: 500 }
-    );
+    return jsonError(e?.message ?? "Failed to compute metrics");
   }
 }

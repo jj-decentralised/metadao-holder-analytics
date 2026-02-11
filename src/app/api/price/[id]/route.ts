@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { fetchMarketChart } from "@/lib/coingecko";
+import { jsonWithCache, jsonError } from "@/lib/apiHelpers";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,8 @@ export async function GET(
     const params = (await context?.params) ?? context?.params;
     const id: string = params?.id;
     const data = await fetchMarketChart(id, (days as any), vs);
-    return NextResponse.json({ prices: data.prices });
+    return jsonWithCache({ prices: data.prices }, "priceChart");
   } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message ?? "Failed to fetch price chart" },
-      { status: 500 }
-    );
+    return jsonError(e?.message ?? "Failed to fetch price chart");
   }
 }
