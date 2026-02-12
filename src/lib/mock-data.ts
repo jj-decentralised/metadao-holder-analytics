@@ -673,3 +673,44 @@ export function getAllTokenSummaries(): TokenSummary[] {
     };
   });
 }
+
+// ── Category Averages
+
+export interface CategoryAverages {
+  metadao: { avgGini: number; avgHolders: number };
+  vcBacked: { avgGini: number; avgHolders: number };
+  community: { avgGini: number; avgHolders: number };
+  overall: { avgGini: number; avgHolders: number };
+}
+
+export function getCategoryAverages(): CategoryAverages {
+  const summaries = getAllTokenSummaries();
+
+  const metadaoTokens = summaries.filter((s) => s.token.category === "metadao");
+  const vcTokens = summaries.filter((s) => s.token.category === "vc-backed");
+  const communityTokens = summaries.filter(
+    (s) => s.token.category === "community"
+  );
+
+  const avg = (arr: TokenSummary[], key: "gini" | "holders") =>
+    arr.length > 0 ? arr.reduce((sum, t) => sum + t[key], 0) / arr.length : 0;
+
+  return {
+    metadao: {
+      avgGini: avg(metadaoTokens, "gini"),
+      avgHolders: avg(metadaoTokens, "holders"),
+    },
+    vcBacked: {
+      avgGini: avg(vcTokens, "gini"),
+      avgHolders: avg(vcTokens, "holders"),
+    },
+    community: {
+      avgGini: avg(communityTokens, "gini"),
+      avgHolders: avg(communityTokens, "holders"),
+    },
+    overall: {
+      avgGini: avg(summaries, "gini"),
+      avgHolders: avg(summaries, "holders"),
+    },
+  };
+}
