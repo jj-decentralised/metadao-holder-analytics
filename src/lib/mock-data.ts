@@ -642,9 +642,7 @@ export interface TokenSummary {
   gini: number;
   nakamoto: number;
   marketCap: number;
-  volume24h: number;
-  holderCount: number;
-  buyPressure: number;
+  buyPressure: number; // 0-100, percentage of buys vs sells
 }
 
 export function getAllTokenSummaries(): TokenSummary[] {
@@ -656,6 +654,13 @@ export function getAllTokenSummaries(): TokenSummary[] {
     const totalHolders =
       buckets.whale + buckets.shark + buckets.dolphin + buckets.fish;
 
+    // Generate buy pressure based on token category (metadao tends to have higher buy pressure)
+    const rand = seededRandom(hashString(token.id + "_pressure"));
+    const isMetadao = token.category === "metadao";
+    const isCommunity = token.category === "community";
+    const basePressure = isMetadao ? 58 : isCommunity ? 50 : 45;
+    const buyPressure = Math.max(20, Math.min(80, basePressure + (rand() - 0.5) * 25));
+
     return {
       token,
       price: priceData.price,
@@ -664,9 +669,7 @@ export function getAllTokenSummaries(): TokenSummary[] {
       gini: metrics.giniCoefficient,
       nakamoto: metrics.nakamotoCoefficient,
       marketCap: priceData.marketCap,
-      volume24h: tradingMetrics.volume24h,
-      holderCount: totalHolders,
-      buyPressure: tradingMetrics.buyPressure,
+      buyPressure,
     };
   });
 }
