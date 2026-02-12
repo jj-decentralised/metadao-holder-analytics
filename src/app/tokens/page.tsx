@@ -4,8 +4,14 @@ import { formatNumber } from "@/components/charts/theme";
 
 export default function TokensPage() {
   const summaries = getAllTokenSummaries().sort((a, b) => {
-    const order = { metadao: 0, community: 1, "vc-backed": 2 };
-    return (order[a.token.category] ?? 3) - (order[b.token.category] ?? 3);
+    const order: Record<string, number> = {
+      metadao: 0,
+      "metadao-ico": 1,
+      "futarchy-dao": 2,
+      "vc-backed": 3,
+      community: 4,
+    };
+    return (order[a.token.category] ?? 5) - (order[b.token.category] ?? 5);
   });
 
   return (
@@ -46,11 +52,13 @@ export default function TokensPage() {
                 </td>
                 <td className="py-3 pr-4">
                   <span className={`text-xs px-2 py-0.5 rounded ${
-                    s.token.category === "metadao"
+                    s.token.category === "metadao" || s.token.category === "metadao-ico"
                       ? "bg-wsj-blue-light text-wsj-blue"
-                      : s.token.category === "community"
-                        ? "bg-positive-light text-positive"
-                        : "bg-cream-dark text-ink-muted"
+                      : s.token.category === "futarchy-dao"
+                        ? "bg-amber-100 text-amber-800"
+                        : s.token.category === "community"
+                          ? "bg-positive-light text-positive"
+                          : "bg-cream-dark text-ink-muted"
                   }`}>
                     {s.token.category}
                   </span>
