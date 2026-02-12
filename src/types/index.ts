@@ -1,6 +1,6 @@
 // ── Token Types ──────────────────────────────────────────────────────────────
 
-export type TokenCategory = "metadao" | "vc-backed" | "community";
+export type TokenCategory = "metadao" | "metadao-ico" | "futarchy-dao" | "vc-backed" | "community";
 export type Chain = "solana";
 
 export interface Token {
@@ -23,6 +23,7 @@ export interface TokenMetadata extends Token {
   investorAllocationPct?: number;
   communityAllocationPct?: number;
   description?: string;
+  futarchyUsage?: string;
 }
 
 // ── Price Types ──────────────────────────────────────────────────────────────
@@ -49,6 +50,22 @@ export interface OHLCV {
   low: number;
   close: number;
   volume: number;
+}
+
+/** Codex getBars response bar */
+export interface CodexBar {
+  t: number; // Unix timestamp
+  o: string; // Open price
+  h: string; // High price
+  l: string; // Low price
+  c: string; // Close price
+  v: string; // Volume
+  buyVolume?: string;
+  sellVolume?: string;
+  buyers?: number;
+  sellers?: number;
+  transactions?: number;
+  liquidity?: string;
 }
 
 // ── Holder Types ─────────────────────────────────────────────────────────────
@@ -156,4 +173,43 @@ export interface DecentralizationScore {
     holderGrowth: number;
     stability: number;
   };
+}
+
+// ── Trading Metrics ──────────────────────────────────────────────────────────
+
+export interface TradingMetrics {
+  volume24h: number;
+  buyVolume24h: number;
+  sellVolume24h: number;
+  txnCount24h: number;
+  liquidity: number;
+  buyPressure: number; // buyVolume / totalVolume ratio
+}
+
+// ── Time Series Types ────────────────────────────────────────────────────────
+
+export interface HolderTimeSeriesSnapshot {
+  timestamp: number;
+  totalHolders: number;
+  gini: number;
+  top10Pct: number;
+  whaleCount: number;
+}
+
+export interface HolderTimeSeries {
+  tokenId: string;
+  snapshots: HolderTimeSeriesSnapshot[];
+}
+
+// ── Whale Movement Types ─────────────────────────────────────────────────────
+
+export type WhaleMoveType = "accumulate" | "distribute";
+
+export interface WhaleMoveEvent {
+  address: string;
+  tokenId: string;
+  timestamp: number;
+  type: WhaleMoveType;
+  amount: number;
+  percentOfSupply: number;
 }
