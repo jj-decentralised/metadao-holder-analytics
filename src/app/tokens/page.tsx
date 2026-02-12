@@ -6,12 +6,12 @@ export default function TokensPage() {
   const summaries = getAllTokenSummaries().sort((a, b) => {
     const order: Record<string, number> = {
       metadao: 0,
-      "metadao-ico": 1,
-      "futarchy-dao": 2,
+      "metadao-ico": 0,
+      "futarchy-dao": 1,
+      community: 2,
       "vc-backed": 3,
-      community: 4,
     };
-    return (order[a.token.category] ?? 5) - (order[b.token.category] ?? 5);
+    return (order[a.token.category] ?? 4) - (order[b.token.category] ?? 4);
   });
 
   return (
