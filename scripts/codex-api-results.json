@@ -1,0 +1,93 @@
+[
+  {
+    "query": "listPairsWithMetadataForToken",
+    "category": "PAIRS",
+    "success": false,
+    "error": "Cannot query field \"address\" on type \"ListPairsForTokenResponse\".",
+    "notes": "Get all trading pairs for a token with liquidity/volume data"
+  },
+  {
+    "query": "filterPairs",
+    "category": "PAIRS",
+    "success": false,
+    "error": "Cannot query field \"volume24\" on type \"PairFilterResult\".",
+    "notes": "Filter and discover trading pairs on Solana"
+  },
+  {
+    "query": "getDetailedPairStats",
+    "category": "LIQUIDITY",
+    "success": false,
+    "error": "Field \"close\" of type \"DetailedPairStatsStringMetrics\" must have a selection of subfields. Did you mean \"close { ... }\"?",
+    "notes": "Detailed stats including TVL, volume, buy/sell pressure"
+  },
+  {
+    "query": "getTokenEvents",
+    "category": "EVENTS",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Recent swaps/trades for a token with amounts and prices"
+  },
+  {
+    "query": "filterTokens (basic)",
+    "category": "DISCOVERY",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Filter tokens by volume/liquidity with trending ranking"
+  },
+  {
+    "query": "filterTokens (new tokens)",
+    "category": "DISCOVERY",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Find tokens created within last 7 days"
+  },
+  {
+    "query": "filterTokens (by volume thresholds)",
+    "category": "DISCOVERY",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Filter tokens by trading volume thresholds"
+  },
+  {
+    "query": "token",
+    "category": "TOKEN_INFO",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Get token metadata"
+  },
+  {
+    "query": "getBars",
+    "category": "OHLCV",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Get OHLCV price data for charting"
+  },
+  {
+    "query": "holders",
+    "category": "HOLDERS",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Get top token holders with balances"
+  },
+  {
+    "query": "getNetworks",
+    "category": "NETWORK",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "List all supported networks and their IDs"
+  },
+  {
+    "query": "getNetworkStatus",
+    "category": "NETWORK",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Get network indexing status"
+  },
+  {
+    "query": "getLatestPairs",
+    "category": "DISCOVERY",
+    "success": false,
+    "error": "400: Bad Request",
+    "notes": "Get newly created trading pairs"
+  }
+]
