@@ -1,3 +1,4 @@
+export {};
 /**
  * Test script for Codex.io getBars API
  * Tests OHLCV bar data fetching for Solana tokens

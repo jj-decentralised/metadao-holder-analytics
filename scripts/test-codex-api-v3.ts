@@ -1,3 +1,4 @@
+export {};
 /**
  * Test script to explore Codex.io GraphQL API capabilities - V3
  * Final corrected queries based on error feedback

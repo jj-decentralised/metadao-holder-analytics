@@ -1,3 +1,4 @@
+export {};
 /**
  * Test script to explore Codex.io GraphQL API capabilities
  * Run with: npx tsx scripts/test-codex-api.ts

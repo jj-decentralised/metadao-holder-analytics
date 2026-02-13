@@ -54,34 +54,43 @@ function generateMockPersonaDistribution(tokenId: string): PersonaDistribution {
   // Persona distribution ratios by category
   const ratios: Record<CategoryType, Record<HolderPersona, [number, number]>> = {
     metadao: {
-      // MetaDAO: high diamond hands, good governance, moderate accumulators
+      // MetaDAO: high diamond hands, good smart money, moderate accumulators
       diamond_hands: [0.25, 0.35],
       accumulator: [0.15, 0.22],
       trader: [0.08, 0.12],
-      yield_farmer: [0.05, 0.10],
-      governance_active: [0.12, 0.18],
-      dormant: [0.08, 0.15],
-      new_holder: [0.08, 0.15],
+      smart_money: [0.12, 0.18],
+      hodler: [0.10, 0.16],
+      inactive: [0.08, 0.15],
+      new_entrant: [0.08, 0.15],
+      whale_accumulator: [0.02, 0.05],
+      whale_distributor: [0.01, 0.03],
+      paper_hands: [0.02, 0.05],
     },
     community: {
-      // Community: high traders, moderate new holders, low governance
+      // Community: high traders, moderate new entrants, lower smart money
       diamond_hands: [0.10, 0.18],
       accumulator: [0.08, 0.14],
       trader: [0.25, 0.35],
-      yield_farmer: [0.03, 0.08],
-      governance_active: [0.02, 0.05],
-      dormant: [0.15, 0.25],
-      new_holder: [0.15, 0.25],
+      smart_money: [0.02, 0.05],
+      inactive: [0.15, 0.25],
+      new_entrant: [0.15, 0.25],
+      hodler: [0.08, 0.14],
+      whale_accumulator: [0.01, 0.03],
+      whale_distributor: [0.01, 0.03],
+      paper_hands: [0.10, 0.15],
     },
     vc: {
-      // VC: moderate diamond hands, high dormant (locked tokens), low governance
+      // VC: moderate diamond hands, many inactive (locked/vested), low smart money
       diamond_hands: [0.15, 0.22],
       accumulator: [0.10, 0.15],
       trader: [0.12, 0.18],
-      yield_farmer: [0.08, 0.14],
-      governance_active: [0.05, 0.10],
-      dormant: [0.25, 0.35],
-      new_holder: [0.08, 0.15],
+      smart_money: [0.05, 0.10],
+      inactive: [0.25, 0.35],
+      new_entrant: [0.08, 0.15],
+      hodler: [0.12, 0.20],
+      whale_accumulator: [0.03, 0.06],
+      whale_distributor: [0.02, 0.05],
+      paper_hands: [0.05, 0.10],
     },
   };
 

@@ -21,22 +21,28 @@ interface PersonaDistributionChartProps {
 
 const PERSONA_LABELS: Record<HolderPersona, string> = {
   diamond_hands: "Diamond Hands",
+  hodler: "Hodlers",
   accumulator: "Accumulators",
   trader: "Active Traders",
-  yield_farmer: "Yield Farmers",
-  governance_active: "Governance Active",
-  dormant: "Dormant Holders",
-  new_holder: "New Holders",
+  whale_accumulator: "Whale Accumulators",
+  whale_distributor: "Whale Distributors",
+  paper_hands: "Paper Hands",
+  smart_money: "Smart Money",
+  new_entrant: "New Entrants",
+  inactive: "Inactive Holders",
 };
 
 const PERSONA_COLORS: Record<HolderPersona, string> = {
   diamond_hands: CHART_COLORS.series[0], // black
+  hodler: CHART_COLORS.series[2],
   accumulator: CHART_COLORS.positive, // green
   trader: CHART_COLORS.series[4], // blue
-  yield_farmer: CHART_COLORS.series[5], // purple
-  governance_active: CHART_COLORS.series[6], // cyan
-  dormant: CHART_COLORS.series[1], // gray
-  new_holder: CHART_COLORS.series[7], // amber
+  whale_accumulator: CHART_COLORS.series[5], // purple
+  whale_distributor: CHART_COLORS.series[3],
+  paper_hands: CHART_COLORS.series[2],
+  smart_money: CHART_COLORS.series[6], // cyan
+  new_entrant: CHART_COLORS.series[7], // amber
+  inactive: CHART_COLORS.series[1], // gray
 };
 
 interface ChartDataItem {

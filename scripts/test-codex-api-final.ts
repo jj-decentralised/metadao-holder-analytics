@@ -1,3 +1,4 @@
+export {};
 /**
  * Codex.io API Exploration - Final Version
  * Based on official documentation at docs.codex.io
