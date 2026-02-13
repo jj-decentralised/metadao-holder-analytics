@@ -24,6 +24,8 @@ export interface TokenMetadata extends Token {
   communityAllocationPct?: number;
   description?: string;
   futarchyUsage?: string;
+  defillamaSlug?: string;
+  tokenTerminalId?: string;
 }
 
 // ── Price Types ──────────────────────────────────────────────────────────────
@@ -230,25 +232,104 @@ export interface RevenueMetrics {
   monthlyRevenue: number;
   totalRevenue: number;
   dailyFees: number;
-  revenueGrowth30d: number;
+  revenueGrowth30d: number; // percentage
   revenuePerHolder?: number;
   timeSeries: RevenueDataPoint[];
 }
 
-// ── Persona Types ────────────────────────────────────────────────────────────
+// ── Holder Persona Types ─────────────────────────────────────────────────────
 
 export type HolderPersona =
-  | "diamond_hands"
-  | "accumulator"
-  | "trader"
-  | "yield_farmer"
-  | "governance_active"
-  | "dormant"
-  | "new_holder";
+  | "diamond_hands"  // >365d hold, <10% balance change
+  | "hodler"         // >180d hold, <20% balance change
+  | "accumulator"    // increasing balance over time
+  | "trader"         // <7d avg hold time
+  | "whale_accumulator" // >1% supply + accumulating
+  | "whale_distributor" // >1% supply + decreasing
+  | "paper_hands"    // <30d hold time
+  | "smart_money"    // positive PnL
+  | "new_entrant"    // first seen <30d ago
+  | "inactive";      // no activity >90d
 
 export interface PersonaDistribution {
   tokenId: string;
   timestamp: number;
   personas: Record<HolderPersona, number>;
   totalClassified: number;
+}
+
+export interface HolderDurationStats {
+  tokenId: string;
+  avgDays: number;
+  medianDays: number;
+  p90Days: number;
+  minDays: number;
+  maxDays: number;
+  /** Percentage of holders who held >180 days */
+  longTermPct: number;
+  /** Percentage of holders who held <7 days */
+  shortTermPct: number;
+}
+
+// ── Econometric Types ────────────────────────────────────────────────────────
+
+export interface RegressionCoefficient {
+  variable: string;
+  estimate: number;
+  standardError: number;
+  tStatistic: number;
+  pValue: number;
+}
+
+export interface RegressionResult {
+  dependent: string;
+  coefficients: RegressionCoefficient[];
+  rSquared: number;
+  adjustedRSquared: number;
+  fStatistic: number;
+  fPValue: number;
+  n: number;
+  residuals: number[];
+}
+
+export interface StatisticalTest {
+  testName: string;
+  statistic: number;
+  pValue: number;
+  significant: boolean; // at α=0.05
+  groups: string[];
+  description: string;
+}
+
+export interface SurvivalPoint {
+  time: number; // days
+  survivalRate: number; // 0-1
+  atRisk: number;
+  events: number;
+}
+
+export interface SurvivalCurve {
+  category: string;
+  points: SurvivalPoint[];
+  medianSurvival: number | null; // days, null if >50% still surviving
+}
+
+export interface MarkovTransitionMatrix {
+  states: string[]; // ["fish", "dolphin", "shark", "whale"]
+  matrix: number[][]; // transition probabilities
+  steadyState: number[]; // long-run distribution
+}
+
+export interface EconometricSummary {
+  regressions: RegressionResult[];
+  tests: StatisticalTest[];
+  survivalCurves: SurvivalCurve[];
+  transitionMatrix: MarkovTransitionMatrix;
+  bootstrapCIs: Array<{
+    metric: string;
+    category: string;
+    mean: number;
+    ci95Lower: number;
+    ci95Upper: number;
+  }>;
 }
