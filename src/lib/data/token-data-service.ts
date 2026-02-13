@@ -18,6 +18,7 @@ import { getCoingeckoClient } from "@/lib/api/coingecko";
 import { getDefillamaClient } from "@/lib/api/defillama";
 import { cache, TTL } from "./cache";
 import * as mock from "@/lib/mock-data";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 // ============================================================================
 // Types
@@ -254,6 +255,9 @@ export async function getTokenPrice(
   }
 
   // Fall back to mock
+  if (!ALLOW_MOCKS) {
+    throw new Error("MOCKS_DISABLED");
+  }
   const mockData = mock.generateCurrentPrice(tokenId);
   return {
     data: mockData,
@@ -331,6 +335,9 @@ export async function getPriceHistory(
   }
 
   // Fall back to mock
+  if (!ALLOW_MOCKS) {
+    throw new Error("MOCKS_DISABLED");
+  }
   const mockData = mock.generatePriceHistory(tokenId, days);
   return {
     data: mockData,
@@ -360,6 +367,9 @@ export async function getTokenHolders(
 
   const token = getTokenById(tokenId);
   if (!token) {
+    if (!ALLOW_MOCKS) {
+      throw new Error("MOCKS_DISABLED");
+    }
     // Generate mock holders
     const balances = mock.generateHolderBalances(tokenId, limit);
     const total = balances.reduce((s, v) => s + v, 0);
@@ -414,6 +424,9 @@ export async function getTokenHolders(
   }
 
   // Fall back to mock
+  if (!ALLOW_MOCKS) {
+    throw new Error("MOCKS_DISABLED");
+  }
   const balances = mock.generateHolderBalances(tokenId, limit);
   const total = balances.reduce((s, v) => s + v, 0);
   const holders = balances.map((balance, idx) => ({
@@ -449,6 +462,9 @@ export async function getTokenMetrics(
 
   const token = getTokenById(tokenId);
   if (!token) {
+    if (!ALLOW_MOCKS) {
+      throw new Error("MOCKS_DISABLED");
+    }
     const metrics = mock.generateMetrics(tokenId);
     const buckets = mock.generateHolderBuckets(tokenId);
     const holderCount =
@@ -545,6 +561,9 @@ export async function getTokenMetrics(
   }
 
   // Fall back to mock
+  if (!ALLOW_MOCKS) {
+    throw new Error("MOCKS_DISABLED");
+  }
   const metrics = mock.generateMetrics(tokenId);
   const buckets = mock.generateHolderBuckets(tokenId);
   const holderCount =
@@ -806,6 +825,12 @@ export async function getAllTokenSummaries(): Promise<TokenSummary[]> {
 
   // Get batch prices first
   const tokenIds = ALL_TOKENS.map((t) => t.id);
+
+  // If mocks are disabled, return an empty set to avoid synthetic content in UI
+  if (!ALLOW_MOCKS) {
+    return [];
+  }
+
   const priceResults = await getBatchPrices(tokenIds);
 
   const summaries: TokenSummary[] = [];

@@ -27,6 +27,16 @@ export default async function TokenDetailPage({
   const token = ALL_TOKENS.find((t) => t.id === id);
   if (!token) notFound();
 
+  // Gate mock-driven token detail page unless explicitly enabled
+  const { ALLOW_MOCKS } = await import("@/lib/config");
+  if (!ALLOW_MOCKS) {
+    return (
+      <div className="p-8 text-ink">
+        Token detail analytics are gated until real data is wired.
+      </div>
+    );
+  }
+
   const price = generateCurrentPrice(token.id);
   const metrics = generateMetrics(token.id);
   const buckets = generateHolderBuckets(token.id);

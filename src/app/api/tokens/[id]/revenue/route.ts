@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_TOKENS, defillamaAddress } from "@/data/tokens";
 import type { RevenueMetrics, RevenueDataPoint } from "@/types";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 // Seeded random for reproducible mock data
 function seededRandom(seed: number) {
@@ -161,7 +162,10 @@ export async function GET(
     });
   }
 
-  // Fallback to mock data
+  // Fallback to mock data or gate
+  if (!ALLOW_MOCKS) {
+    return NextResponse.json({ error: "Revenue data unavailable (mock data disabled)." }, { status: 503 });
+  }
   const mockData = generateMockRevenueData(id, days);
 
   return NextResponse.json({

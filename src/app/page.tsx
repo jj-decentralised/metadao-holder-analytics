@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { getAllTokenSummaries, type TokenSummary } from "@/lib/mock-data";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 // Category badge colors
 const categoryStyles: Record<string, { bg: string; text: string; label: string }> = {
@@ -16,6 +17,13 @@ function getCategoryStyle(category: string) {
 }
 
 export default function Home() {
+  if (!ALLOW_MOCKS) {
+    return (
+      <div className="p-8">
+        <p className="text-ink">Home dashboard is gated until real data is fully wired. Please set CODEX_API_KEY, TOKENTERMINAL_API_KEY, COINGECKO_API_KEY and re-deploy.</p>
+      </div>
+    );
+  }
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",

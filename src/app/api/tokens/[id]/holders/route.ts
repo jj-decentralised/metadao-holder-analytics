@@ -5,6 +5,7 @@ import {
   getTokenHolders,
   generateHolderTimeSeries,
 } from "@/lib/data/token-data-service";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 export async function GET(
   request: NextRequest,
@@ -21,15 +22,21 @@ export async function GET(
   const cursor = request.nextUrl.searchParams.get("cursor") ?? undefined;
 
   // Fetch metrics and holders in parallel
-  const [metricsResult, holdersResult] = await Promise.all([
-    getTokenMetrics(token.id),
-    getTokenHolders(token.id, limit, cursor),
-  ]);
+  try {
+    const [metricsResult, holdersResult] = await Promise.all([
+      getTokenMetrics(token.id),
+      getTokenHolders(token.id, limit, cursor),
+    ]);
 
-  // Generate timeseries data (still mock for now - would need historical data API)
-  const timeseries = generateHolderTimeSeries(token.id, days);
+    // Block if any source is mock and mocks are disabled
+    if (!ALLOW_MOCKS && (metricsResult.source === "mock" || holdersResult.source === "mock")) {
+      return NextResponse.json({ error: "Holder data unavailable (mock data disabled)." }, { status: 503 });
+    }
 
-  const response = NextResponse.json({
+    // Generate timeseries data (use empty if mocks disabled)
+    const timeseries = ALLOW_MOCKS ? generateHolderTimeSeries(token.id, days) : [];
+
+    const response = NextResponse.json({
     tokenId: id,
     holderCount: metricsResult.data.holderCount,
     holders: holdersResult.data.holders,
@@ -50,4 +57,10 @@ export async function GET(
 
   response.headers.set("Cache-Control", "public, max-age=300");
   return response;
+  } catch (err) {
+    if ((err as Error).message === "MOCKS_DISABLED") {
+      return NextResponse.json({ error: "Holder data unavailable (mock data disabled)." }, { status: 503 });
+    }
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
 }

@@ -8,6 +8,7 @@ import {
   getAllTokenSummaries,
   generateTradingMetrics,
 } from "@/lib/mock-data";
+import { ALLOW_MOCKS } from "@/lib/config";
 import { compareDistributions } from "@/lib/metrics/comparison";
 import type { TokenCategory } from "@/types";
 
@@ -82,6 +83,9 @@ function aggregateCategoryStats(): CategoryStats[] {
 }
 
 export async function GET(request: NextRequest) {
+  if (!ALLOW_MOCKS) {
+    return NextResponse.json({ error: "Compare API is gated until real data is wired." }, { status: 503 });
+  }
   const mode = request.nextUrl.searchParams.get("mode");
 
   // ── Category Comparison Mode ─────────────────────────────────────────────

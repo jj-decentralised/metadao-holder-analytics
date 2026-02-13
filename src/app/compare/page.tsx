@@ -1,5 +1,7 @@
 "use client";
 
+const ALLOW_MOCKS = process.env.NEXT_PUBLIC_ALLOW_MOCKS === "true";
+
 import { useState, useMemo } from "react";
 import { METADAO_TOKENS, VC_TOKENS, ALL_TOKENS } from "@/data/tokens";
 import { KpiCard } from "@/components/ui/KpiCard";
@@ -80,6 +82,9 @@ function computeCategoryStats(
 }
 
 export default function ComparePage() {
+  if (!ALLOW_MOCKS) {
+    return <div className="p-8 text-ink">Compare analysis is gated until real data is wired.</div>;
+  }
   const [mode, setMode] = useState<CompareMode>("category");
   const [metaId, setMetaId] = useState(METADAO_TOKENS[0].id);
   const [vcId, setVcId] = useState(VC_TOKENS[0].id);

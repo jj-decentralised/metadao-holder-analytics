@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_TOKENS } from "@/data/tokens";
 import type { PersonaDistribution, HolderPersona } from "@/types";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 // Seeded random for reproducible mock data
 function seededRandom(seed: number) {
@@ -127,6 +128,10 @@ export async function GET(
 
   if (!token) {
     return NextResponse.json({ error: "Token not found" }, { status: 404 });
+  }
+
+  if (!ALLOW_MOCKS) {
+    return NextResponse.json({ error: "Persona data unavailable (mock data disabled)." }, { status: 503 });
   }
 
   const distribution = generateMockPersonaDistribution(id);

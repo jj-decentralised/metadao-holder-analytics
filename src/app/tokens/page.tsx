@@ -1,5 +1,7 @@
 "use client";
 
+const ALLOW_MOCKS = process.env.NEXT_PUBLIC_ALLOW_MOCKS === "true";
+
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useMemo, useState, useCallback } from "react";
@@ -55,6 +57,9 @@ function getTrendArrow(change24h: number): string {
 }
 
 export default function TokensPage() {
+  if (!ALLOW_MOCKS) {
+    return <div className="p-8 text-ink">Tokens table is gated until real data is wired.</div>;
+  }
   return (
     <Suspense fallback={<div className="p-8 text-ink-muted">Loading tokens...</div>}>
       <TokensPageInner />

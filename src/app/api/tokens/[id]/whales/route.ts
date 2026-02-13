@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_TOKENS } from "@/data/tokens";
 import { generateHolderBuckets } from "@/lib/mock-data";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 function seededRandom(seed: number) {
   let s = seed;
@@ -108,6 +109,10 @@ export async function GET(
   const token = ALL_TOKENS.find((t) => t.id === id);
   if (!token) {
     return NextResponse.json({ error: "Token not found" }, { status: 404 });
+  }
+
+  if (!ALLOW_MOCKS) {
+    return NextResponse.json({ error: "Whale data unavailable (mock data disabled)." }, { status: 503 });
   }
 
   const movements = generateWhaleMovements(token.id);

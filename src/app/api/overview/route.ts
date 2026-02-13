@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { ALL_TOKENS } from "@/data/tokens";
 import { generateMetrics } from "@/lib/mock-data";
+import { ALLOW_MOCKS } from "@/lib/config";
 
 export async function GET() {
+  if (!ALLOW_MOCKS) {
+    return NextResponse.json({ error: "Overview is gated until real data is wired." }, { status: 503 });
+  }
   const categories = {
     metadao: 0,
     vc: 0,

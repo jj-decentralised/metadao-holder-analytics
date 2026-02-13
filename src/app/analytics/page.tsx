@@ -1,5 +1,7 @@
 "use client";
 
+const ALLOW_MOCKS = process.env.NEXT_PUBLIC_ALLOW_MOCKS === "true";
+
 import { useMemo } from "react";
 import {
   ScatterChart,
@@ -161,6 +163,9 @@ function ScatterPlot({ data, title, subtitle }: ScatterPlotProps) {
 }
 
 export default function AnalyticsPage() {
+  if (!ALLOW_MOCKS) {
+    return <div className="p-8 text-ink">Analytics scatter plots are gated until real data is wired.</div>;
+  }
   const scatterData = useMemo(() => getScatterData(), []);
   const categoryStats = useMemo(() => getCategoryStats(), []);
 
