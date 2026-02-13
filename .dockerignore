@@ -1,0 +1,8 @@
+node_modules
+.git
+.next
+npm-debug.log
+Dockerfile
+**/*.md
+scripts/
+docs/
