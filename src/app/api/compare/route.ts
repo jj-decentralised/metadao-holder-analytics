@@ -5,10 +5,103 @@ import {
   generateCurrentPrice,
   generateHolderBuckets,
   generateHolderBalances,
+  getAllTokenSummaries,
+  generateTradingMetrics,
 } from "@/lib/mock-data";
 import { compareDistributions } from "@/lib/metrics/comparison";
+import type { TokenCategory } from "@/types";
+
+// ── Category Stats Aggregation ───────────────────────────────────────────────
+
+interface CategoryStats {
+  category: string;
+  tokens: number;
+  avgGini: number;
+  avgNakamoto: number;
+  avgHHI: number;
+  avgEntropy: number;
+  avgHolders: number;
+  avgBuyPressure: number;
+}
+
+function aggregateCategoryStats(): CategoryStats[] {
+  const summaries = getAllTokenSummaries();
+
+  // Group tokens by category
+  const categoryGroups: Record<
+    string,
+    {
+      gini: number[];
+      nakamoto: number[];
+      hhi: number[];
+      entropy: number[];
+      holders: number[];
+      buyPressure: number[];
+    }
+  > = {};
+
+  summaries.forEach((s) => {
+    const cat = s.token.category;
+    if (!categoryGroups[cat]) {
+      categoryGroups[cat] = {
+        gini: [],
+        nakamoto: [],
+        hhi: [],
+        entropy: [],
+        holders: [],
+        buyPressure: [],
+      };
+    }
+
+    // Get full metrics for HHI and entropy
+    const metrics = generateMetrics(s.token.id);
+    const trading = generateTradingMetrics(s.token.id);
+
+    categoryGroups[cat].gini.push(s.gini);
+    categoryGroups[cat].nakamoto.push(s.nakamoto);
+    categoryGroups[cat].hhi.push(metrics.hhi);
+    categoryGroups[cat].entropy.push(metrics.shannonEntropy);
+    categoryGroups[cat].holders.push(s.holders);
+    categoryGroups[cat].buyPressure.push(trading.buyPressure * 100); // Convert to percentage
+  });
+
+  // Calculate averages for each category
+  const avg = (arr: number[]) =>
+    arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+
+  return Object.entries(categoryGroups).map(([category, data]) => ({
+    category,
+    tokens: data.gini.length,
+    avgGini: avg(data.gini),
+    avgNakamoto: avg(data.nakamoto),
+    avgHHI: avg(data.hhi),
+    avgEntropy: avg(data.entropy),
+    avgHolders: avg(data.holders),
+    avgBuyPressure: avg(data.buyPressure),
+  }));
+}
 
 export async function GET(request: NextRequest) {
+  const mode = request.nextUrl.searchParams.get("mode");
+
+  // ── Category Comparison Mode ─────────────────────────────────────────────
+  if (mode === "category") {
+    const categoryStats = aggregateCategoryStats();
+    const summaries = getAllTokenSummaries();
+
+    const response = NextResponse.json({
+      mode: "category",
+      categoryStats,
+      tokens: summaries,
+      source: "mock",
+      fetchedAt: new Date().toISOString(),
+    });
+
+    response.headers.set("Cache-Control", "public, max-age=3600");
+    return response;
+  }
+
+  // ── Two-Token Comparison Mode (default) ──────────────────────────────────
   const token1Id = request.nextUrl.searchParams.get("token1");
   const token2Id = request.nextUrl.searchParams.get("token2");
 
@@ -48,6 +141,7 @@ export async function GET(request: NextRequest) {
   const distributionComparison = compareDistributions(balances1, balances2);
 
   const response = NextResponse.json({
+    mode: "token",
     token1: {
       ...token1,
       metrics: metrics1,
