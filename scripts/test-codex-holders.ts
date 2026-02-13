@@ -1,3 +1,4 @@
+export {};
 /**
  * Test script to probe Codex.io API for holder time-series capabilities
  * Run: npx ts-node scripts/test-codex-holders.ts
