@@ -38,6 +38,7 @@ export default function RootLayout({
               <Link href="/" className="text-ink-light font-medium hover:text-wsj-blue">Overview</Link>
               <Link href="/tokens" className="text-ink-muted hover:text-wsj-blue">Tokens</Link>
               <Link href="/compare" className="text-ink-muted hover:text-wsj-blue">Compare</Link>
+              <Link href="/analytics" className="text-ink-muted hover:text-wsj-blue">Analytics</Link>
               <Link href="/methodology" className="text-ink-muted hover:text-wsj-blue">Methodology</Link>
             </nav>
           </div>
