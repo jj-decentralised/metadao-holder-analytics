@@ -82,6 +82,77 @@ export class DeFiLlamaClient {
   async listProtocols(): Promise<Array<{ name: string; slug: string; tvl: number; chain: string }>> {
     return this.fetch(`${LLAMA_API}/protocols`);
   }
+
+  // ========================================================================
+  // Fees & Revenue
+  // ========================================================================
+
+  /** Get fees overview, optionally filtered by chain */
+  async getFeesOverview(chain?: string): Promise<{
+    totalDataChart: Array<[number, number]>;
+    protocols: Array<{
+      name: string;
+      slug: string;
+      total24h: number;
+      total7d: number;
+      total30d: number;
+      change_1d: number;
+    }>;
+  }> {
+    const url = chain
+      ? `${LLAMA_API}/overview/fees?chain=${chain}`
+      : `${LLAMA_API}/overview/fees`;
+    return this.fetch(url);
+  }
+
+  /** Get protocol-level fees summary */
+  async getProtocolFees(slug: string): Promise<{
+    name: string;
+    total24h: number;
+    total7d: number;
+    total30d: number;
+    totalAllTime: number;
+    totalDataChart: Array<[number, number]>;
+  } | null> {
+    try {
+      return await this.fetch(`${LLAMA_API}/summary/fees/${slug}`);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Get protocol-level revenue summary (protocol revenue = fees - LP share) */
+  async getProtocolRevenue(slug: string): Promise<{
+    name: string;
+    total24h: number;
+    total7d: number;
+    total30d: number;
+    totalAllTime: number;
+    totalDataChart: Array<[number, number]>;
+  } | null> {
+    try {
+      return await this.fetch(`${LLAMA_API}/summary/revenue/${slug}`);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Get revenue overview for a chain */
+  async getRevenueOverview(chain?: string): Promise<{
+    totalDataChart: Array<[number, number]>;
+    protocols: Array<{
+      name: string;
+      slug: string;
+      total24h: number;
+      total7d: number;
+      total30d: number;
+    }>;
+  }> {
+    const url = chain
+      ? `${LLAMA_API}/overview/revenue?chain=${chain}`
+      : `${LLAMA_API}/overview/revenue`;
+    return this.fetch(url);
+  }
 }
 
 let _defaultClient: DeFiLlamaClient | null = null;

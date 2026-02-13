@@ -460,6 +460,43 @@ export class CodexClient {
     return data.getTokenEvents?.items ?? [];
   }
 
+  /**
+   * Get all token events for a specific wallet (maker).
+   * Used for holder duration analysis — traces a wallet's buy/sell history.
+   * @param address - Token contract address
+   * @param maker - Wallet address to filter events for
+   * @param networkId - Network ID (defaults to Solana)
+   * @param from - Start timestamp (seconds)
+   * @param to - End timestamp (seconds)
+   * @param limit - Max number of events
+   * @returns Array of events for the specified maker
+   */
+  async getTokenEventsForMaker(
+    address: string,
+    maker: string,
+    networkId = SOLANA_NETWORK_ID,
+    from?: number,
+    to?: number,
+    limit = 500
+  ): Promise<CodexTokenEvent[]> {
+    const data = await this.query<{ getTokenEvents: { items: CodexTokenEvent[] } }>(
+      `query($address: String!, $networkId: Int!, $maker: String!, $from: Int, $to: Int, $limit: Int) {
+        getTokenEvents(input: { address: $address, networkId: $networkId, maker: $maker, from: $from, to: $to, limit: $limit }) {
+          items {
+            timestamp
+            blockNumber
+            transactionHash
+            maker
+            priceUsd
+            labels
+          }
+        }
+      }`,
+      { address, networkId, maker, from, to, limit }
+    );
+    return data.getTokenEvents?.items ?? [];
+  }
+
   // ==========================================================================
   // Discovery / Filtering
   // ==========================================================================
