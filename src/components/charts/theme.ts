@@ -1,22 +1,22 @@
 export const CHART_COLORS = {
   series: [
-    "#0080C6", // WSJ blue
-    "#E6553A", // warm red
-    "#26A65B", // positive green
-    "#F5A623", // amber
-    "#7B68EE", // medium purple
-    "#E91E90", // hot pink
-    "#00BCD4", // cyan
-    "#8D6E63", // brown
+    "#000000", // primary black
+    "#6B7280", // gray
+    "#16A34A", // green
+    "#DC2626", // red
+    "#2563EB", // blue
+    "#9333EA", // purple
+    "#0891B2", // cyan
+    "#CA8A04", // amber
   ],
-  positive: "#26A65B",
-  negative: "#CC0000",
-  neutral: "#666666",
-  grid: "#E8E4DC",
-  axis: "#999999",
-  equality: "#D4D0C8", // For Lorenz curve equality line
+  positive: "#16A34A",
+  negative: "#DC2626",
+  neutral: "#555555",
+  grid: "#E5E5E5",
+  axis: "#888888",
+  equality: "#D4D4D4",
   background: "#FFFFFF",
-  cream: "#FBF7F0",
+  cream: "#FFFFFF",
 };
 
 export const CHART_FONTS = {

@@ -2,33 +2,33 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* WSJ Color Palette */
-  --color-cream: #FBF7F0;
-  --color-cream-dark: #F5F1EB;
-  --color-ink: #1A1A1A;
-  --color-ink-light: #333333;
-  --color-ink-muted: #666666;
-  --color-ink-faint: #999999;
+  /* Monochrome Palette */
+  --color-cream: #FFFFFF;
+  --color-cream-dark: #F5F5F5;
+  --color-ink: #000000;
+  --color-ink-light: #1A1A1A;
+  --color-ink-muted: #555555;
+  --color-ink-faint: #888888;
 
-  --color-wsj-blue: #0080C6;
-  --color-wsj-blue-light: #E6F3FA;
-  --color-positive: #26A65B;
-  --color-positive-light: #E8F5EE;
-  --color-negative: #CC0000;
-  --color-negative-light: #FBE8E8;
+  --color-wsj-blue: #000000;
+  --color-wsj-blue-light: #F0F0F0;
+  --color-positive: #16A34A;
+  --color-positive-light: #F0FDF4;
+  --color-negative: #DC2626;
+  --color-negative-light: #FEF2F2;
 
-  --color-rule: #D4D0C8;
-  --color-rule-light: #E8E4DC;
+  --color-rule: #D4D4D4;
+  --color-rule-light: #E5E5E5;
 
-  /* Chart data series */
-  --color-series-1: #0080C6;
-  --color-series-2: #E6553A;
-  --color-series-3: #26A65B;
-  --color-series-4: #F5A623;
-  --color-series-5: #7B68EE;
-  --color-series-6: #E91E90;
-  --color-series-7: #00BCD4;
-  --color-series-8: #8D6E63;
+  /* Chart data series — high-contrast monochrome-first */
+  --color-series-1: #000000;
+  --color-series-2: #6B7280;
+  --color-series-3: #16A34A;
+  --color-series-4: #DC2626;
+  --color-series-5: #2563EB;
+  --color-series-6: #9333EA;
+  --color-series-7: #0891B2;
+  --color-series-8: #CA8A04;
 
   /* Typography */
   --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
@@ -36,14 +36,14 @@
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* Backgrounds */
-  --color-background: var(--color-cream);
-  --color-foreground: var(--color-ink);
+  --color-background: #FFFFFF;
+  --color-foreground: #000000;
   --color-surface: #FFFFFF;
 }
 
 body {
-  background: var(--color-cream);
-  color: var(--color-ink);
+  background: #FFFFFF;
+  color: #000000;
   font-family: var(--font-sans);
   font-size: 0.9375rem;
   line-height: 1.6;
@@ -56,7 +56,7 @@ h1, h2, h3 {
 
 .rule-top { border-top: 1px solid var(--color-rule); }
 .rule-bottom { border-bottom: 1px solid var(--color-rule); }
-.rule-heavy { border-top: 3px solid var(--color-ink); }
+.rule-heavy { border-top: 3px solid #000000; }
 
 .data-number {
   font-variant-numeric: tabular-nums;
