@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_TOKENS } from "@/data/tokens";
-import { generatePriceHistory } from "@/lib/mock-data";
+import { getPriceHistory } from "@/lib/data/token-data-service";
 
 export async function GET(
   request: NextRequest,
@@ -13,11 +13,12 @@ export async function GET(
   }
 
   const days = parseInt(request.nextUrl.searchParams.get("days") ?? "90", 10);
-  const points = generatePriceHistory(token.id, days);
+  const result = await getPriceHistory(token.id, days);
 
   return NextResponse.json({
-    data: { tokenId: id, points },
-    source: "mock",
+    data: { tokenId: id, points: result.data },
+    source: result.source,
+    cached: result.cached,
     fetchedAt: new Date().toISOString(),
   });
 }
