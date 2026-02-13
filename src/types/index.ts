@@ -213,3 +213,42 @@ export interface WhaleMoveEvent {
   amount: number;
   percentOfSupply: number;
 }
+
+// ── Revenue Types ────────────────────────────────────────────────────────────
+
+export interface RevenueDataPoint {
+  timestamp: number;
+  revenue: number;
+  fees: number;
+  protocolRevenue?: number;
+}
+
+export interface RevenueMetrics {
+  tokenId: string;
+  dailyRevenue: number;
+  weeklyRevenue: number;
+  monthlyRevenue: number;
+  totalRevenue: number;
+  dailyFees: number;
+  revenueGrowth30d: number;
+  revenuePerHolder?: number;
+  timeSeries: RevenueDataPoint[];
+}
+
+// ── Persona Types ────────────────────────────────────────────────────────────
+
+export type HolderPersona =
+  | "diamond_hands"
+  | "accumulator"
+  | "trader"
+  | "yield_farmer"
+  | "governance_active"
+  | "dormant"
+  | "new_holder";
+
+export interface PersonaDistribution {
+  tokenId: string;
+  timestamp: number;
+  personas: Record<HolderPersona, number>;
+  totalClassified: number;
+}
